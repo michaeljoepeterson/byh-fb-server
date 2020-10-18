@@ -24,10 +24,12 @@ app.use(function (req, res, next) {
 app.use('/api',mainRouter);
 //generic error handler
 app.use((req,res,next) => {
-    res.status = 500;
+    res.status(500);
+    let err = res.err ? res.err : 'no error provided';
+    console.log('error: ',err);
     return res.json({
         message:'An error occured',
-        error:res.err
+        error:err
     })
 });
 /*
