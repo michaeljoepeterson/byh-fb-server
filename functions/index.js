@@ -3,24 +3,12 @@ require('dotenv').config();
 const express = require('express');
 const {PORT, DATABASE_URL,DOMAINS } = require('./config');
 const {router: mainRouter} = require('./routers/main-router.js');
+const {cors} = require('./tools/toolsLib');
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
 const app = express();
 app.use(jsonParser);
-app.use(function (req, res, next) {
-    let origin = req.headers.origin;
-    let allowedOrigins = DOMAINS.split(',');
-    //if(allowedOrigins.indexOf(origin) > -1){
-       //res.setHeader('Access-Control-Allow-Origin', origin);
-    //}
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-    next();
-});
+app.use(cors);
 app.use('/api',mainRouter);
 //generic error handler
 app.use((req,res,next) => {
