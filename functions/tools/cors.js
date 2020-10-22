@@ -22,6 +22,7 @@ const cors = (req, res, next) => {
         }
     }
     else{
+        res.status(422);
         return res.json({
             code:422,
             message:'Unauthorized'
