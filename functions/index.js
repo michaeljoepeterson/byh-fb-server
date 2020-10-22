@@ -7,6 +7,15 @@ const {cors} = require('./tools/toolsLib');
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
 const app = express();
+
+const admin = require('firebase-admin');
+const serviceAccount = require('./admin.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://byh-app.firebaseio.com"
+});
+
 app.use(jsonParser);
 app.use(cors);
 app.use('/api',mainRouter);
