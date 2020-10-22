@@ -15,6 +15,7 @@ const cors = (req, res, next) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
         }
         else{
+            res.status(422);
             return res.json({
                 code:422,
                 message:'Unauthorized'
