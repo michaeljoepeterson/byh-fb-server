@@ -8,13 +8,7 @@ const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
 const app = express();
 
-const admin = require('firebase-admin');
-const serviceAccount = require('./admin.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://byh-app.firebaseio.com"
-});
+//const db = admin.firestore();
 
 app.use(jsonParser);
 app.use(cors);

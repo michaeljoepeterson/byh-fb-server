@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const FormData = require('../models/form-data');
 const {checkAuth} = require('../tools/checkAuth');
+const admin = require('firebase-admin');
+const db = admin.firestore();
 
 router.post('/',(req,res,next) => {
     let {form} = req.body;
@@ -19,11 +21,19 @@ router.post('/',(req,res,next) => {
     }
 });
 
-router.get('/',checkAuth,(req,res,next) => {
- 
-    return res.json({
-        message:'Some form data'
-    });
+router.get('/',checkAuth,async (req,res,next) => {
+    try{
+        const document = await db.collection('forms').doc('testform');
+        return res.json({
+            message:'Some form data',
+            document
+        });
+    }
+    catch(e){
+        console.log('error getting protected data',e);
+        next()
+    }
+
 });
 
 module.exports = {router};
