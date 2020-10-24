@@ -10,3 +10,5 @@ exports.fb = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://byh-app.firebaseio.com"
 });
+
+exports.db = admin.firestore();

@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const FormData = require('../models/form-data');
 const {checkAuth} = require('../tools/checkAuth');
-const admin = require('firebase-admin');
-const db = admin.firestore();
+const {db} = require('../config');
 
 router.post('/',(req,res,next) => {
     let {form} = req.body;
@@ -23,10 +22,13 @@ router.post('/',(req,res,next) => {
 
 router.get('/',checkAuth,async (req,res,next) => {
     try{
-        const document = await db.collection('forms').doc('testform');
+        const document = db.collection('forms').doc('testform');
+        let item = await document.get();
+        let response = item.data();
+        console.log('item:',item);
         return res.json({
             message:'Some form data',
-            document
+            document:response
         });
     }
     catch(e){
