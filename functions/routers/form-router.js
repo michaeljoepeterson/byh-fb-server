@@ -24,9 +24,11 @@ router.post('/',(req,res,next) => {
 router.get('/',checkAuth,async (req,res,next) => {
     try{
         const document = await db.collection('forms').doc('testform');
+        let item = await document.get();
+        let response = item.data();
         return res.json({
             message:'Some form data',
-            document
+            document:response
         });
     }
     catch(e){
