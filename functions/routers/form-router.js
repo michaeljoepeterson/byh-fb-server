@@ -25,7 +25,6 @@ router.get('/',checkAuth,async (req,res,next) => {
         const document = db.collection('forms').doc('testform');
         let item = await document.get();
         let response = item.data();
-        console.log('item:',item);
         return res.json({
             message:'Some form data',
             document:response
