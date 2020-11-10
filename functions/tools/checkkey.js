@@ -1,7 +1,9 @@
 const {SECRET} = require('../config');
+const {FormData} = require('../models/form-data');
 
 const checkKey = (key) => {
-    if(key === SECRET){
+    var buf = Buffer.from(key, 'base64').toString();
+    if(buf === SECRET){
         return true;
     }
     else{
