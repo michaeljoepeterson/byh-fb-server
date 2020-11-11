@@ -5,6 +5,7 @@ const {BaseData} = require('./base-data');
 class FormData extends BaseData{
 
     constructor(data){
+        super(data);
         this.referralNum = null;
         this.referralType = null;
         this.otherReferralType = null;
@@ -20,6 +21,7 @@ class FormData extends BaseData{
         this.age = null;
         this.learnedAbout = null;
 
+        this.mapData(data);
     }
 
     mapData(data){
@@ -88,26 +90,45 @@ class FormData extends BaseData{
         };
 
         for(let key in data){
-            if(this.mapData[key]){
-                let {type,classKey} = dataMap[key];
-                if(type === stringType){
-  
+            try{
+                if(dataMap[key]){
+                    let {type,classKey} = dataMap[key];
+                    if(type === stringType){
+                        this[classKey] = data[key];
+                    }
+                    else if(type === numberType){
+                        this[classKey] = Number(data[key]);
+                    }
+                    else if(type == dateType){
+                        let dateSplit = data[key].split('-');
+                        this[classKey] = new Date(dateSplit[0],dateSplit[1] - 1,dateSplit[2]);
+                    }
+                    else if(type == timeType){
+                        this[classKey] = data[key];
+                        let splitTime = data[key].split(':');
+                        splitTime = splitTime.map(time => Number(time));
+                        this.referralDate.setHours(splitTime[0],splitTime[1]);
+                    }
                 }
-                else if(type === numberType){
-
-                }
-                else if(type == dateType){
-
-                }
-                else if(type == timeType){
-
-                }
+            }
+            catch(e){
+                console.warn('error mapping data',e);
+                throw(e);
             }
         }
     }
 
     serialize(){
-        console.log(Object.keys(this));
+        let props = Object.keys(this);
+        let data = {};
+        
+        props.forEach(prop => {
+            if(this[prop] || this[prop] === 0){
+                data[prop] = this[prop];
+            }
+        });
+
+        return data;
     }
 }
 
