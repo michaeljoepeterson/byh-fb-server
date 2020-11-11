@@ -24,6 +24,27 @@ class FormData extends BaseData{
         this.mapData(data);
     }
 
+    static getDataNames(){
+        let dataNames = {
+            referralNum: 'referralNum' ,
+            referralType: 'referralType' ,
+            otherReferralType: 'otherReferralType' ,
+            schoolDistrict: 'schoolDistrict' ,
+            referralDate: 'referralDate' ,
+            contactTime: 'contactTime' ,
+            referralPer: 'referralPer' ,
+            referralTypeAndName: 'referralTypeAndName' ,
+            clientLocation: 'clientLocation' ,
+            locationNeighbourhood: 'locationNeighbourhood' ,
+            country: 'country' ,
+            firstName: 'firstName' ,
+            age: 'age' ,
+            learnedAbout: 'learnedAbout' ,
+        }; 
+
+        return dataNames;
+    }
+
     mapData(data){
         const numberType = 'number';
         const stringType = 'string';

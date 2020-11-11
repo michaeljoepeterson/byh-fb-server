@@ -36,12 +36,25 @@ router.post('/',async (req,res,next) => {
 
 router.get('/',checkAuth,async (req,res,next) => {
     try{
-        const document = await db.collection('forms').doc('testform');
-        let item = await document.get();
-        let response = item.data();
+        let offsetDays = 30;
+        let end = new Date();
+        let start = new Date();
+        start.setDate(start.getDate() - offsetDays);
+        let dataNames = FormData.getDataNames();
+        console.log(dataNames);
+        const documents = await db.collection('forms')
+        .where(dataNames.referralDate,'>',start)
+        .where(dataNames.referralDate,'<',end).get()
+        ;
+        //let item = await documents.;
+        //let response = item.data();
+        const data = [];
+        documents.forEach(doc =>{
+            data.push(doc.data());
+        });
         return res.json({
             message:'Some form data',
-            document:response
+            documents:data
         });
     }
     catch(e){
