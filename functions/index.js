@@ -12,6 +12,10 @@ const app = express();
 
 app.use(jsonParser);
 app.use(cors);
+app.use((req, res, next) => {
+    req.project = req.headers.project ? req.headers.project : 'TEST';
+    next();
+});
 app.use('/api',mainRouter);
 //generic error handler
 app.use((req,res,next) => {

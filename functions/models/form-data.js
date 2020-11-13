@@ -20,6 +20,7 @@ class FormData extends BaseData{
         this.firstName = null;
         this.age = null;
         this.learnedAbout = null;
+        this.project = null;
 
         this.mapData(data);
     }
@@ -40,6 +41,7 @@ class FormData extends BaseData{
             firstName: 'firstName' ,
             age: 'age' ,
             learnedAbout: 'learnedAbout' ,
+            project: 'project'
         }; 
 
         return dataNames;
@@ -107,6 +109,10 @@ class FormData extends BaseData{
             '757950175':{
                 classKey:'learnedAbout',
                 type:stringType 
+            },
+            'project':{
+                classKey:'project',
+                type:stringType 
             }
         };
 
@@ -121,14 +127,14 @@ class FormData extends BaseData{
                         this[classKey] = Number(data[key]);
                     }
                     else if(type == dateType){
-                        let dateSplit = data[key].split('-');
-                        this[classKey] = new Date(dateSplit[0],dateSplit[1] - 1,dateSplit[2]);
+                        //let dateSplit = data[key].split('/');
+                        this[classKey] = new Date(data[key]);
                     }
                     else if(type == timeType){
                         this[classKey] = data[key];
-                        let splitTime = data[key].split(':');
-                        splitTime = splitTime.map(time => Number(time));
-                        this.referralDate.setHours(splitTime[0],splitTime[1]);
+                        //let splitTime = data[key].split(':');
+                        //splitTime = splitTime.map(time => Number(time));
+                        //this.referralDate.setHours(splitTime[0],splitTime[1]);//
                     }
                 }
             }

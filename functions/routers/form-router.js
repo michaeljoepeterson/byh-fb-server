@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const FormData = require('../models/form-data');
 const {checkAuth} = require('../tools/checkAuth');
+const {database} = require('../db/db-interface');
 const admin = require('firebase-admin');
 const db = admin.firestore();
 
@@ -16,12 +17,14 @@ router.post('/',async (req,res,next) => {
     }
     else{
         try{
+            /*
             let formData = new FormData(form);
             let saveData = formData.serialize();
             console.log('==========form instance: ',saveData);
             let id = String(saveData.referralNum);
             await db.collection('forms').doc(id).set(saveData);
-            
+            */
+            await database.saveForm(form);
             return res.json({
                 message:'Saved Data'
             });
@@ -36,22 +39,31 @@ router.post('/',async (req,res,next) => {
 
 router.get('/',checkAuth,async (req,res,next) => {
     try{
-        let offsetDays = 30;
-        let end = new Date();
-        let start = new Date();
-        start.setDate(start.getDate() - offsetDays);
-        let dataNames = FormData.getDataNames();
-        console.log(dataNames);
+        //let offsetDays = 30;
+        //let end = new Date();
+        //let start = new Date();
+        //start.setDate(start.getDate() - offsetDays);
+        //let dataNames = FormData.getDataNames();
+        let {project} = req;
+        /*
         const documents = await db.collection('forms')
+        .where(dataNames.project, '==',project)
         .where(dataNames.referralDate,'>',start)
         .where(dataNames.referralDate,'<',end).get()
         ;
-        //let item = await documents.;
-        //let response = item.data();
+
         const data = [];
         documents.forEach(doc =>{
-            data.push(doc.data());
+            let docData = doc.data();
+            if(docData.referralDate){
+                docData.referralDate = docData.referralDate.toDate();
+            }
+            data.push(docData);
         });
+        */
+        //let db = new DbInterface(project);
+        const data = await database.getForms(project);
+
         return res.json({
             message:'Some form data',
             documents:data
@@ -59,7 +71,8 @@ router.get('/',checkAuth,async (req,res,next) => {
     }
     catch(e){
         console.log('error getting protected data',e);
-        next()
+        res.err = e;
+        next();
     }
 
 });
