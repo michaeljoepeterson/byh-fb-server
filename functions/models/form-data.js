@@ -127,14 +127,7 @@ class FormData extends BaseData{
                         this[classKey] = Number(data[key]);
                     }
                     else if(type == dateType){
-                        //let dateSplit = data[key].split('/');
                         this[classKey] = new Date(data[key]);
-                    }
-                    else if(type == timeType){
-                        this[classKey] = data[key];
-                        //let splitTime = data[key].split(':');
-                        //splitTime = splitTime.map(time => Number(time));
-                        //this.referralDate.setHours(splitTime[0],splitTime[1]);//
                     }
                 }
             }
