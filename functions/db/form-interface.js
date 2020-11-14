@@ -1,9 +1,11 @@
 const admin = require('firebase-admin');
 const FormData = require('../models/form-data');
+const {BaseInterface} = require('./base-interface');
 const db = admin.firestore();
 
-class DbInterface{
+class DbInterface extends BaseInterface{
     constructor(){
+        super();
         this.db = db;
     }
 

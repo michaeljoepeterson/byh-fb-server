@@ -26,7 +26,7 @@ app.use((req,res,next) => {
     console.log('error: ',err);
     return res.json({
         message:'An error occured',
-        error:err
+        error:err.message ? err.message : err
     })
 });
 /*
