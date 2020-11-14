@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const functions = require('firebase-functions');
 const {router:formRouter} = require('./form-router');
+const {router:userRouter} = require('./user-router');
 
 
 router.get('/test',(req,res) => {
@@ -13,5 +14,6 @@ router.get('/test',(req,res) => {
 });
 
 router.use('/forms',formRouter);
+router.use('/users',userRouter);
 
 module.exports = {router};

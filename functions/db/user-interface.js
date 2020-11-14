@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const FormData = require('../models/form-data');
+const {User} = require('../models/user');
 const db = admin.firestore();
 
 class UserInterface{
@@ -7,9 +7,14 @@ class UserInterface{
         this.db = db;
     }
 
-    async saveUser(user){
+    async saveUser(userData){
         try{
-            
+            let user = new User(userData);
+            let saveData = user.serialize();
+            let id = saveData.email;
+            console.log('user save data:',saveData);
+            await this.db.collection('users').doc(id).set(saveData);
+
             return true;
         }
         catch(e){

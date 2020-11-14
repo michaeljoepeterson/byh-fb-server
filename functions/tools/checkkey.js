@@ -10,4 +10,19 @@ const checkKey = (key) => {
     }
 }
 
-module.exports = {checkKey};
+const requireKey = (req, res, next) => {
+    let {client_token} = req.headers;
+    let hasKey = checkKey(client_token);
+    if(hasKey){
+        next();
+    }
+    else{
+        res.status(422);
+        return res.json({
+            code:422,
+            message:'Unauthorized'
+        });
+    }
+}
+
+module.exports = {checkKey,requireKey};
