@@ -4,14 +4,7 @@ const {User} = require('../models/user');
 const {requireKey,checkAuth} = require('../tools/toolsLib');
 const {userDatabase} = require('../db/user-interface');
 
-//to do add auth
-router.get('/',(rqe,res,next) => {
-    let user = new User();
-    let userKeys = user.getDataNames();
-    return res.json({
-        data:userKeys
-    });
-});
+
 //short term until front end built out require a key if using api to create user
 router.post('/',requireKey, async (req,res,next) => {
     try{
@@ -27,10 +20,9 @@ router.post('/',requireKey, async (req,res,next) => {
     }
 });
 
-router.get('/:email',checkAuth,async (req,res,next) => {
+router.get('/',checkAuth,async (req,res,next) => {
     try{
-        let {project} = req;
-        let {email} = req.params;
+        let {email,project} = req.user;
         let docs = await userDatabase.getUser(project,email);
         res.status(200);
         return res.json({

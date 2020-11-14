@@ -32,7 +32,7 @@ class UserInterface extends BaseInterface{
             let documents = await this.db.collection(this.userCollection)
             .where(this.projectId,'array-contains',project)
             .where(this.userId,'==',email).get();
-            console.log(documents);
+
             let data = []
             documents.forEach(doc => {
                 data.push(doc.data());
