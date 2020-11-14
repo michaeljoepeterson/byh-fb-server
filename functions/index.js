@@ -11,7 +11,9 @@ const app = express();
 //const db = admin.firestore();
 
 app.use(jsonParser);
+//cors middleware
 app.use(cors);
+//test mode middleware
 app.use((req, res, next) => {
     req.project = req.headers.project ? req.headers.project : 'TEST';
     next();

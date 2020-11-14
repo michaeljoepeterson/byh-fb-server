@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const FormData = require('../models/form-data');
 const {checkAuth} = require('../tools/checkAuth');
-const {database} = require('../db/db-interface');
+const {database} = require('../db/form-interface');
 const admin = require('firebase-admin');
 const db = admin.firestore();
 
