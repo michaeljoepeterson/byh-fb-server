@@ -42,7 +42,7 @@ router.post('/',checkAuth, async (req,res,next) => {
     }
 });
 
-router.get('/',checkAuth,async (req,res,next) => {
+router.get('/check',checkAuth,async (req,res,next) => {
     try{
         let {email,project} = req.user;
         let existingUser = myCache.get(email);
