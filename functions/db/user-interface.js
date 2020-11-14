@@ -45,15 +45,13 @@ class UserInterface extends BaseInterface{
                 };
             }
             else if(data.length === 0){
-                throw {
-                    message:'No user found'
-                };
+                return null;
             }
             else{
                 let level = await this.db.collection(this.levelCollection).doc(data[0].level).get();
                 let levelData = level.data();
                 data[0].level = levelData;
-                return data;
+                return data[0];
             }
 
         }
