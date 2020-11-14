@@ -9,6 +9,8 @@ class UserInterface extends BaseInterface{
         this.db = db;
         this.userCollection = 'users';
         this.userId = 'email';
+        this.levelCollection = 'user_levels';
+        this.levelN
     }
 
     async saveUser(userData){
@@ -29,12 +31,12 @@ class UserInterface extends BaseInterface{
 
     async getUser(project,email){
         try{
-            let documents = await this.db.collection(this.userCollection)
+            let users = await this.db.collection(this.userCollection)
             .where(this.projectId,'array-contains',project)
             .where(this.userId,'==',email).get();
 
             let data = []
-            documents.forEach(doc => {
+            users.forEach(doc => {
                 data.push(doc.data());
             });
             if(data.length > 1){
@@ -48,6 +50,9 @@ class UserInterface extends BaseInterface{
                 };
             }
             else{
+                let level = await this.db.collection(this.levelCollection).doc(data[0].level).get();
+                let levelData = level.data();
+                data[0].level = levelData;
                 return data;
             }
 
