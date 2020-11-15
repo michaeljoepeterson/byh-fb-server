@@ -14,18 +14,27 @@ const myCache = new NodeCache({ stdTTL: timeOutDefault, checkperiod: checkPeriod
 router.post('/',checkAuth, async (req,res,next) => {
     try{
         let {user} = req.body;
+        console.log('body user: ',user);
+        console.log('req user: ',req.user);
         let existingUser = myCache.get(req.user.email);
-        if(existingUser){
+        let foundUser = await userDatabase.getUser(req.user.project,req.user.email);
+        console.log('found user', foundUser);
+        let hasProject = foundUser && foundUser.project.includes(req.user.project) ? true : false; 
+        if(existingUser && hasProject){
             return res.json({
                 message:'Existing user'
             });
         }
         else{
-            let foundUser = await userDatabase.getUser(req.user.project,req.user.email);
             if(!foundUser){
                 console.log('saving user');
                 await userDatabase.saveUser(user);
 
+            }
+            else if(foundUser && !hasProject){
+                console.log('adding user project');
+                await userDatabase.addProject(req.user.email,req.user.project);
+                myCache.set( req.user.email, foundUser );
             }
             else{
                 console.log('caching user',foundUser);
@@ -54,8 +63,11 @@ router.get('/check',checkAuth,async (req,res,next) => {
         }
         else{
             let user = await userDatabase.getUser(project,email);
-            myCache.set( email, user );
-            console.log('found db user: ');
+            if(user){
+                myCache.set( email, user );
+                console.log('found db user: ',user);    
+            }
+            
             res.status(200);
             return res.json({
                 user:user

@@ -13,6 +13,22 @@ class UserInterface extends BaseInterface{
         this.levelN
     }
 
+    async addProject(email,project){
+        try{
+
+            console.log('user projects data:',project);
+            await this.db.collection(this.userCollection).doc(email).update({
+                project: admin.firestore.FieldValue.arrayUnion(project.toUpperCase())
+            });
+
+            return true;
+        }
+        catch(e){
+            console.warn('error updating projects: ',e);
+            throw e;
+        }
+    }
+
     async saveUser(userData){
         try{
             let user = new User(userData);
@@ -24,21 +40,24 @@ class UserInterface extends BaseInterface{
             return true;
         }
         catch(e){
-            console.warn('error saving form: ',e);
+            console.warn('error saving user: ',e);
             throw e;
         }
     }
 
     async getUser(project,email){
         try{
+            console.log(project,email);
             let users = await this.db.collection(this.userCollection)
-            .where(this.projectId,'array-contains',project)
-            .where(this.userId,'==',email).get();
-
+            //.where(this.projectId,'array-contains',project)
+            .where(this.userId,'==',String(email)).get();
+            
+            console.log(this.userCollection,this.projectId,this.userId);
             let data = []
             users.forEach(doc => {
                 data.push(doc.data());
             });
+            
             if(data.length > 1){
                 throw {
                     message:'More than one user found'
@@ -48,9 +67,11 @@ class UserInterface extends BaseInterface{
                 return null;
             }
             else{
-                let level = await this.db.collection(this.levelCollection).doc(data[0].level).get();
-                let levelData = level.data();
-                data[0].level = levelData;
+                if(data[0].level){
+                    let level = await this.db.collection(this.levelCollection).doc(data[0].level).get();
+                    let levelData = level.data();
+                    data[0].level = levelData;
+                }
                 return data[0];
             }
 
