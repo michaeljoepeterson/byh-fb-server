@@ -5,8 +5,8 @@ const {requireKey,checkAuth} = require('../tools/toolsLib');
 const {userDatabase} = require('../db/user-interface');
 const NodeCache = require( "node-cache" );
 //reset cache every hour
-let timeOutDefault = (60) * 60;
-let checkPeriod = (60) * 65;
+let timeOutDefault = (60) * 10;
+let checkPeriod = (60) * 15;
 const myCache = new NodeCache({ stdTTL: timeOutDefault, checkperiod: checkPeriod });
 
 
