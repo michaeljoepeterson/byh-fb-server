@@ -30,7 +30,7 @@ class BaseData{
 
         return names;
     }
-    //base map data to object
+    //base map data to class/object
     mapData(data){
         let props = Object.getOwnPropertyNames(this);
         props.forEach(prop => {
@@ -39,7 +39,7 @@ class BaseData{
             }
         });
     }
-
+    //base serialize to simple object
     serialize(){
         let props = Object.getOwnPropertyNames(this);
         let data = {};

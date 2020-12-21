@@ -1,9 +1,23 @@
 const {BaseData} = require('./base-data');
+
+const NodeCache = require( "node-cache" );
+//reset cache every 10 min for now
+//prod change to 60
+let timeOutDefault = (60) * 10;
+let checkPeriod = (60) * 15;
+//cache to avoid uneccssary db checks/writes
+const fieldDataCache = new NodeCache({ stdTTL: timeOutDefault, checkperiod: checkPeriod });
 //because of nodejs version 10 we have to initialize vars in constructor
 
 //possible todo add dynamic field creation in case fields are added to form
 class FormData extends BaseData{
-
+    /*
+    new form data: 
+    {
+        value,
+        type -> saved on form result just in case type changes at some point
+    }
+    */
     constructor(data){
         super(data);
         this.referralNum = null;
@@ -45,7 +59,7 @@ class FormData extends BaseData{
         }; 
 
         return dataNames;
-    }
+    }    
 
     mapData(data){
         const numberType = 'number';
