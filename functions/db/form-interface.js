@@ -16,6 +16,8 @@ class DbInterface extends BaseInterface{
     constructor(){
         super();
         this.db = db;
+        this.timeIdentifier = 'time';
+        this.dateIdentifier = 'date';
     }
 
     async saveForm(form){
@@ -54,8 +56,15 @@ class DbInterface extends BaseInterface{
     }
 
     getFieldType(respForm){
+
         let {value} = respForm;
-        let type = null;
+
+        if(respForm.title.toLowerCase().includes(this.dateIdentifier)){
+            return this.dateIdentifier;
+        }
+        if(respForm.title.toLowerCase().includes(this.timeIdentifier)){
+            return this.timeIdentifier;
+        }
         if(value){
             if(value instanceof Date){
                 return 'date';
@@ -64,12 +73,12 @@ class DbInterface extends BaseInterface{
             return typeof value;
         }
 
-        return type;
+        return null;
     }
 
     async createFields(formData){
-        const timeIdentifier = 'time';
-        const dateIdentifier = 'date';
+        //for associating date time fields
+        let dateTimeMap = {};
         try{
             let fieldReqs = [];
             formData.forEach(async(form) => {
@@ -80,6 +89,33 @@ class DbInterface extends BaseInterface{
                     respField.fieldType = type;
                     //console.log('resp field======',respForm);
                     let existingField = fieldDataCache.get(respField.id);
+                    //one way association only one of the fields will have the association
+                    //which should be enough to setup a relation ship
+                    if(type === this.timeIdentifier || type === this.dateIdentifier){
+                        let isDate = type === this.dateIdentifier;
+                        let dateIdSplit = !isDate ? respField.fieldTitle.toLowerCase().split(this.timeIdentifier) : respField.fieldTitle.toLowerCase().split(this.dateIdentifier);
+                        let dateId = dateIdSplit.find(str => str !== '');
+                        if(!dateTimeMap[dateId]){
+                            let dateObj = {
+                                date:null,
+                                time:null
+                            };
+                            dateObj.date = type === this.dateIdentifier ? respField.id : null;
+                            dateObj.time = type === this.timeIdentifier ? respField.id : null;
+                            dateTimeMap[dateId] = dateObj;
+                        }
+                        else{
+                            if(isDate){
+                                respField.associatedField = dateTimeMap[dateId].time;
+                            }
+                            else{
+                                respField.associatedField = dateTimeMap[dateId].date;
+                            }
+                        }
+ 
+                    }
+                    //console.log('date: ',dateTimeMap);
+                    //console.log('final resp field: ',respField);
                     //create/update field if it does not exist
                     if(!existingField){
                         //await this.saveField(respField); 
