@@ -21,15 +21,15 @@ class DbInterface extends BaseInterface{
     async saveForm(form){
         try{
             await this.createFields(form);
-            /*
+            
             let formData = new FormData(form);
             let saveData = formData.serialize();
             console.log('==========form instance: ',saveData);
             let id = String(saveData.referralNum);
-            if(id){
+            if(id && saveData.referralNum){
                 await this.db.collection('forms').doc(id).set(saveData);
             }
-            */
+            
             return true;
         }
         catch(e){
@@ -53,14 +53,32 @@ class DbInterface extends BaseInterface{
         }
     }
 
+    getFieldType(respForm){
+        let {value} = respForm;
+        let type = null;
+        if(value){
+            if(value instanceof Date){
+                return 'date';
+            }
+
+            return typeof value;
+        }
+
+        return type;
+    }
+
     async createFields(formData){
         const timeIdentifier = 'time';
+        const dateIdentifier = 'date';
         try{
             let fieldReqs = [];
             formData.forEach(async(form) => {
                 try{
                     let respField = new FormFieldData(form);
-                    let respForm = new FormResponse(formData);
+                    let respForm = new FormResponse(form);
+                    let type = this.getFieldType(respForm);
+                    respField.fieldType = type;
+                    //console.log('resp field======',respForm);
                     let existingField = fieldDataCache.get(respField.id);
                     //create/update field if it does not exist
                     if(!existingField){
