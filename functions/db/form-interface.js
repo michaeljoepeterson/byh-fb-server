@@ -27,8 +27,8 @@ class DbInterface extends BaseInterface{
             let formData = new FormData(form);
             let saveData = formData.serialize();
             console.log('==========form instance: ',saveData);
-            let id = String(saveData.referralNum);
-            if(id && saveData.referralNum){
+            let id = String(saveData.id);
+            if(id && saveData.id){
                 await this.db.collection('forms').doc(id).set(saveData);
             }
             
@@ -85,7 +85,7 @@ class DbInterface extends BaseInterface{
                 try{
                     let respField = new FormFieldData(form);
                     let respForm = new FormResponse(form);
-                    let type = this.getFieldType(respForm);
+                    let type = respField.getFieldType(respForm);
                     respField.fieldType = type;
                     //console.log('resp field======',respForm);
                     let existingField = fieldDataCache.get(respField.id);

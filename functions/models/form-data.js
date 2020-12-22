@@ -1,5 +1,5 @@
 const {BaseData} = require('./base-data');
-
+const {FormResponse} = require('./form-response');
 const NodeCache = require( "node-cache" );
 //reset cache every 10 min for now
 //prod change to 60
@@ -35,8 +35,11 @@ class FormData extends BaseData{
         this.age = null;
         this.learnedAbout = null;
         this.project = null;
+        this.id = null;
+        this.idIdentifier = 'referral';
+        this.customFields = {};
 
-        this.mapData(data);
+        this.dynamicMapData(data);
     }
 
     static getDataNames(){
@@ -59,7 +62,20 @@ class FormData extends BaseData{
         }; 
 
         return dataNames;
-    }    
+    }
+    
+    dynamicMapData(data){
+        data.forEach(formField => {
+            let formResp = new FormResponse(formField);
+            this.customFields[formResp.id] = {
+                value:formResp.value,
+                type:this.getFieldType(formResp)
+            };
+            if(formResp.title.toLowerCase().includes(this.idIdentifier)){
+                this.id = formResp.value;
+            }
+        });
+    }
 
     mapData(data){
         const numberType = 'number';
@@ -153,16 +169,8 @@ class FormData extends BaseData{
     }
 
     serialize(){
-        let props = Object.keys(this);
-        let data = {};
-        
-        props.forEach(prop => {
-            if(this[prop] || this[prop] === 0){
-                data[prop] = this[prop];
-            }
-        });
-
-        return data;
+        this.customFields.id = this.id;
+        return this.customFields;
     }
 }
 
