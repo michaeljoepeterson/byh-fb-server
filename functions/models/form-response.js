@@ -8,7 +8,9 @@ class FormResponse extends BaseData{
         this.value = null;
         this.id = null;
         this.type = null;
-        this.mapData(data);
+        if(data){
+            this.mapData(data);
+        }
     }
 
 }

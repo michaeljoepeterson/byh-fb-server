@@ -74,12 +74,14 @@ class FormData extends BaseData{
                 type:this.getFieldType(formResp)
             };
             */
-           this.customFields[formResp.id] = formResp.value;
-            if(formResp.title.toLowerCase().includes(this.idIdentifier)){
-                this.id = formResp.value;
-            }
             if(formResp.title.toLowerCase().includes(this.projectIdentifier)){
                 this.project = formResp.value;
+            }
+            else{
+                this.customFields[formResp.id] = formResp.value;
+            }
+            if(formResp.title.toLowerCase().includes(this.idIdentifier)){
+                this.id = formResp.value;
             }
         });
     }

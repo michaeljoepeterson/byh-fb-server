@@ -146,7 +146,7 @@ class DbInterface extends BaseInterface{
                 return finalForms;
             }
 
-            return [];
+            return finalForms;
         }
         catch(e){
             throw e;
@@ -165,6 +165,72 @@ class DbInterface extends BaseInterface{
         }
         catch(e){
             console.log('error getting field: ',e);
+            throw e;
+        }
+    }
+
+    async getFieldById(id){
+        try{
+            const doc = await this.db.collection('fields').doc(id).get();
+            let field = doc.data();
+            return field;
+        }
+        catch(e){
+            console.log('error getting field: ',e);
+            throw e;
+        }
+    }
+
+    async populateFields(forms){
+        try{
+            let fieldReqs = [];
+            let fieldsAdded = {};
+            let formFields = [];
+            let populatedDocs = [];
+            forms.forEach(form => {
+                for(let fieldId in form){
+                    let cachedField = fieldDataCache.get(fieldId);
+                    if(!cachedField && !fieldsAdded[fieldId]){
+                        fieldReqs.push(this.getFieldById(fieldId));
+                        fieldsAdded[fieldId] = fieldReqs.length - 1;
+                    }
+                    else if(cachedField && !fieldsAdded[fieldId]){
+                        fieldReqs.push(cachedField);
+                        fieldsAdded[fieldId] = fieldReqs.length - 1;
+                    }   
+                }
+            });
+
+            let fields = await Promise.all(fieldReqs);
+
+            forms.forEach(form => {
+                for(let fieldId in form){
+                    let cachedField = fieldDataCache.get(fieldId);
+                    let foundField = fields[fieldsAdded[fieldId]];
+                    if(foundField){
+                        let formResp = new FormResponse();
+                        formResp.title = foundField.fieldTitle;
+                        formResp.id = foundField.id;
+                        formResp.type = foundField.fieldType;
+                        formResp.value = form[fieldId];
+                        if(!cachedField){
+                            fieldDataCache.set(fieldId,foundField);
+                        }
+                        formFields.push(formResp.serialize());
+                        
+                    }
+                }
+                let formData = {
+                    id:form.id,
+                    fields:formFields
+                };
+                populatedDocs.push(formData);
+            });
+            console.log('pop docs: ',populatedDocs);
+            return populatedDocs;
+        }
+        catch(e){
+            console.log('error populating fields: ',e);
             throw e;
         }
     }
@@ -207,8 +273,8 @@ class DbInterface extends BaseInterface{
                 }
                 data.push(docData);
             });
-    
-            return data;
+            let populatedDocs = await this.populateFields(data);
+            return populatedDocs;
         }
         catch(e){
             console.log('error getting forms: ',e);
