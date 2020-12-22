@@ -37,6 +37,7 @@ class FormData extends BaseData{
         this.project = null;
         this.id = null;
         this.idIdentifier = 'referral';
+        this.projectIdentifier = 'project';
         this.customFields = {};
 
         this.dynamicMapData(data);
@@ -76,6 +77,9 @@ class FormData extends BaseData{
            this.customFields[formResp.id] = formResp.value;
             if(formResp.title.toLowerCase().includes(this.idIdentifier)){
                 this.id = formResp.value;
+            }
+            if(formResp.title.toLowerCase().includes(this.projectIdentifier)){
+                this.project = formResp.value;
             }
         });
     }
@@ -173,6 +177,7 @@ class FormData extends BaseData{
 
     serialize(){
         this.customFields.id = this.id;
+        this.customFields.project = this.project;
         return this.customFields;
     }
 }

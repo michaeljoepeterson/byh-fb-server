@@ -18,6 +18,7 @@ class DbInterface extends BaseInterface{
         this.db = db;
         this.timeIdentifier = 'time';
         this.dateIdentifier = 'date';
+        this.projectIdentifier = 'project';
     }
 
     async saveForm(form){
@@ -45,12 +46,15 @@ class DbInterface extends BaseInterface{
             let saveData = field.serialize();
             console.log('==========field instance: ',saveData);
             let id = String(saveData.id);
-            await this.db.collection('fields').doc(id).set(saveData);
+            if(id && saveData.id){
+                console.log(saveData.id);
+                await this.db.collection('fields').doc(id).set(saveData);
+            }
             
             return true;
         }
         catch(e){
-            console.warn('error saving form: ',e);
+            console.warn('error saving field: ',e);
             throw e;
         }
     }
@@ -68,7 +72,7 @@ class DbInterface extends BaseInterface{
                     let type = respField.getFieldType(respForm);
                     respField.fieldType = type;
                     //console.log('resp field======',respForm);
-                    let existingField = fieldDataCache.get(respField.id);
+                    let existingField = respField.id ? fieldDataCache.get(respField.id): null;
                     //one way association only one of the fields will have the association
                     //which should be enough to setup a relationship
                     if(type === this.dateIdentifier){
@@ -124,9 +128,9 @@ class DbInterface extends BaseInterface{
  
                     }
                     //console.log('date: ',dateTimeMap);
-                    console.log('final resp form: ',respForm);
+                    //console.log('final resp form: ',respForm);
                     //create/update field if it does not exist
-                    if(!existingField){
+                    if(!existingField && respField.id){
                         //await this.saveField(respField); 
                         fieldReqs.push(this.saveField(respField));
                         fieldDataCache.set(respField.id,respField);
