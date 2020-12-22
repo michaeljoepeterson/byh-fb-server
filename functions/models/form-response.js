@@ -7,6 +7,7 @@ class FormResponse extends BaseData{
         this.title= null;
         this.value = null;
         this.id = null;
+        this.type = null;
         this.mapData(data);
     }
 

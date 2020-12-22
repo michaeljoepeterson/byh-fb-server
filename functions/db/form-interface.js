@@ -153,8 +153,20 @@ class DbInterface extends BaseInterface{
         }
     }
 
-    async populateFields(){
-
+    async getField(title){
+        try{
+            const documents = await this.db.collection('fields')
+            .where('fieldTitle','==',title).get();
+            let field = null;
+            documents.forEach(doc => {
+                field = doc.data();
+            })
+            return field;
+        }
+        catch(e){
+            console.log('error getting field: ',e);
+            throw e;
+        }
     }
 
     async getForms(project,options){
@@ -163,19 +175,35 @@ class DbInterface extends BaseInterface{
             let offsetDays = options.offset ? offset : 30;
             let end = !options.end ? new Date() : options.end;
             let start = !options.start ? new Date() : options.start;
+            let {dateField} = options; 
+            let dateFieldData = dateField ? await this.getField(dateField) : null;
             start.setDate(start.getDate() - offsetDays);
-            let dataNames = FormData.getDataNames();
-            const documents = await this.db.collection('forms')
-            .where(dataNames.project, '==',project)
-            .where(dataNames.referralDate,'>',start)
-            .where(dataNames.referralDate,'<',end).get()
-            ;
+            //let dataNames = FormData.getDataNames();
+            let documents = [];
+            console.log(dateFieldData);
+            console.log(start,end);
+            if(dateField){
+                documents = await this.db.collection('forms')
+                .where('project', '==',project)
+                .where(dateFieldData.id,'>',start)
+                .where(dateFieldData.id,'<',end).get()
+                ;
+            }
+            else{
+                documents = await this.db.collection('forms')
+                .where('project', '==',project).get()
+            }
     
             const data = [];
             documents.forEach(doc =>{
                 let docData = doc.data();
+                /*
                 if(docData.referralDate){
                     docData.referralDate = docData.referralDate.toDate();
+                }
+                */
+                if(dateFieldData && docData[dateFieldData.id]){
+                    docData[dateFieldData.id] = docData[dateFieldData.id].toDate();
                 }
                 data.push(docData);
             });
