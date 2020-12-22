@@ -62,11 +62,15 @@ class BaseData{
     getFieldType(respForm){
 
         let {value} = respForm;
-
-        if(respForm.title.toLowerCase().includes(this.dateIdentifier)){
+        //to sync time and date format must be 
+        //some name date
+        //some name time
+        let regexDate = /[\s]{1}date[\s\W]{0,1}/gi;
+        let regexTime = /[\s]{1}time[\s\W]{0,1}/gi;
+        if(respForm.title.toLowerCase().match(regexDate)){
             return this.dateIdentifier;
         }
-        if(respForm.title.toLowerCase().includes(this.timeIdentifier)){
+        if(respForm.title.toLowerCase().match(regexTime)){
             return this.timeIdentifier;
         }
         if(value){

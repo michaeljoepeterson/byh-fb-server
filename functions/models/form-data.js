@@ -67,10 +67,13 @@ class FormData extends BaseData{
     dynamicMapData(data){
         data.forEach(formField => {
             let formResp = new FormResponse(formField);
+            /*
             this.customFields[formResp.id] = {
                 value:formResp.value,
                 type:this.getFieldType(formResp)
             };
+            */
+           this.customFields[formResp.id] = formResp.value;
             if(formResp.title.toLowerCase().includes(this.idIdentifier)){
                 this.id = formResp.value;
             }

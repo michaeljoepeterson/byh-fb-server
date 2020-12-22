@@ -22,9 +22,9 @@ class DbInterface extends BaseInterface{
 
     async saveForm(form){
         try{
-            await this.createFields(form);
+            let modifiedForms = await this.createFields(form);
             
-            let formData = new FormData(form);
+            let formData = new FormData(modifiedForms);
             let saveData = formData.serialize();
             console.log('==========form instance: ',saveData);
             let id = String(saveData.id);
@@ -55,33 +55,13 @@ class DbInterface extends BaseInterface{
         }
     }
 
-    getFieldType(respForm){
-
-        let {value} = respForm;
-
-        if(respForm.title.toLowerCase().includes(this.dateIdentifier)){
-            return this.dateIdentifier;
-        }
-        if(respForm.title.toLowerCase().includes(this.timeIdentifier)){
-            return this.timeIdentifier;
-        }
-        if(value){
-            if(value instanceof Date){
-                return 'date';
-            }
-
-            return typeof value;
-        }
-
-        return null;
-    }
-
     async createFields(formData){
         //for associating date time fields
         let dateTimeMap = {};
         try{
             let fieldReqs = [];
-            formData.forEach(async(form) => {
+            let finalForms = [];
+            formData.forEach(async(form,index) => {
                 try{
                     let respField = new FormFieldData(form);
                     let respForm = new FormResponse(form);
@@ -90,7 +70,10 @@ class DbInterface extends BaseInterface{
                     //console.log('resp field======',respForm);
                     let existingField = fieldDataCache.get(respField.id);
                     //one way association only one of the fields will have the association
-                    //which should be enough to setup a relation ship
+                    //which should be enough to setup a relationship
+                    if(type === this.dateIdentifier){
+                        respForm.value = new Date(respForm.value);
+                    }
                     if(type === this.timeIdentifier || type === this.dateIdentifier){
                         let isDate = type === this.dateIdentifier;
                         let dateIdSplit = !isDate ? respField.fieldTitle.toLowerCase().split(this.timeIdentifier) : respField.fieldTitle.toLowerCase().split(this.dateIdentifier);
@@ -98,30 +81,57 @@ class DbInterface extends BaseInterface{
                         if(!dateTimeMap[dateId]){
                             let dateObj = {
                                 date:null,
-                                time:null
+                                time:null,
+                                dateIndex:null,
+                                timeIndex:null
                             };
                             dateObj.date = type === this.dateIdentifier ? respField.id : null;
                             dateObj.time = type === this.timeIdentifier ? respField.id : null;
+
+                            dateObj.dateIndex = type === this.dateIdentifier ? index : null;
+                            dateObj.timeIndex = type === this.timeIdentifier ? index : null;
+                            
                             dateTimeMap[dateId] = dateObj;
                         }
                         else{
                             if(isDate){
+                                let timeIndex = dateTimeMap[dateId].timeIndex;
                                 respField.associatedField = dateTimeMap[dateId].time;
+                                if(timeIndex){
+                                    try{
+                                        let timeSplit = finalForms[timeIndex].split(":");
+                                        respForm.value.setHours(timeSplit[0],timeSplit[1]);
+                                    }
+                                    catch(e){
+                                        console.log('error saving time to date',e);
+                                    }
+                                }
                             }
                             else{
+                                let dateIndex = dateTimeMap[dateId].dateIndex;
                                 respField.associatedField = dateTimeMap[dateId].date;
+                                if(dateIndex){
+                                    try{
+                                        let timeSplit = respForm.value.split(':');
+                                        finalForms[dateIndex].value.setHours(timeSplit[0],timeSplit[1]);
+                                    }
+                                    catch(e){
+                                        console.log('error saving date to time',e);
+                                    }
+                                }
                             }
                         }
  
                     }
                     //console.log('date: ',dateTimeMap);
-                    //console.log('final resp field: ',respField);
+                    console.log('final resp form: ',respForm);
                     //create/update field if it does not exist
                     if(!existingField){
                         //await this.saveField(respField); 
                         fieldReqs.push(this.saveField(respField));
                         fieldDataCache.set(respField.id,respField);
                     }
+                    finalForms.push(respForm);
                 }
                 catch(e){
                     throw e;
@@ -129,11 +139,18 @@ class DbInterface extends BaseInterface{
             });
             if(fieldReqs.length > 0){
                 await Promise.all(fieldReqs);
+                return finalForms;
             }
+
+            return [];
         }
         catch(e){
             throw e;
         }
+    }
+
+    async populateFields(){
+
     }
 
     async getForms(project,options){
