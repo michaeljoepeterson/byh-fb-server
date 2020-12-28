@@ -11,6 +11,7 @@ class FormFieldData extends BaseData{
         //if we need to connect a field in this case time to date
         this.associatedField = null;
         this.timezone = null;
+        this.project = null;
         
         this.mapResponse(data);
     }

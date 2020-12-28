@@ -41,8 +41,9 @@ class DbInterface extends BaseInterface{
         }
     }
 
-    async saveField(field){
+    async saveField(field,project){
         try{
+            field.project = project;
             let saveData = field.serialize();
             console.log('==========field instance: ',saveData);
             let id = String(saveData.id);
@@ -62,6 +63,8 @@ class DbInterface extends BaseInterface{
     async createFields(formData){
         //for associating date time fields
         let dateTimeMap = {};
+        let projectField = formData.find(data => data.title.toLowerCase() === 'project');
+        let project = projectField.value;
         try{
             let fieldReqs = [];
             let finalForms = [];
@@ -71,7 +74,7 @@ class DbInterface extends BaseInterface{
                     let respForm = new FormResponse(form);
                     let type = respField.getFieldType(respForm);
                     respField.fieldType = type;
-                    //console.log('resp field======',respForm);
+
                     let existingField = respField.id ? fieldDataCache.get(respField.id): null;
                     //one way association only one of the fields will have the association
                     //which should be enough to setup a relationship
@@ -132,7 +135,7 @@ class DbInterface extends BaseInterface{
                     //create/update field if it does not exist
                     if(!existingField && respField.id){
                         //await this.saveField(respField); 
-                        fieldReqs.push(this.saveField(respField));
+                        fieldReqs.push(this.saveField(respField,project));
                         fieldDataCache.set(respField.id,respField);
                     }
                     finalForms.push(respForm);
