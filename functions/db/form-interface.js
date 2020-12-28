@@ -65,6 +65,7 @@ class DbInterface extends BaseInterface{
         let dateTimeMap = {};
         let projectField = formData.find(data => data.title.toLowerCase() === 'project');
         let project = projectField.value;
+        console.log('==========form data: ',formData);
         try{
             let fieldReqs = [];
             let finalForms = [];
@@ -81,6 +82,7 @@ class DbInterface extends BaseInterface{
                     if(type === this.dateIdentifier){
                         respForm.value = new Date(respForm.value);
                     }
+                    /*
                     if(type === this.timeIdentifier || type === this.dateIdentifier){
                         let isDate = type === this.dateIdentifier;
                         let dateIdSplit = !isDate ? respField.fieldTitle.toLowerCase().split(this.timeIdentifier) : respField.fieldTitle.toLowerCase().split(this.dateIdentifier);
@@ -130,6 +132,7 @@ class DbInterface extends BaseInterface{
                         }
  
                     }
+                    */
                     //console.log('date: ',dateTimeMap);
                     //console.log('final resp form: ',respForm);
                     //create/update field if it does not exist
@@ -223,6 +226,7 @@ class DbInterface extends BaseInterface{
             let fields = await Promise.all(fieldReqs);
 
             forms.forEach(form => {
+                formFields = [];
                 for(let fieldId in form){
                     let cachedField = fieldDataCache.get(fieldId);
                     let foundField = fields[fieldsAdded[fieldId]];
@@ -265,20 +269,20 @@ class DbInterface extends BaseInterface{
             start.setDate(start.getDate() - offsetDays);
             //let dataNames = FormData.getDataNames();
             let documents = [];
-            console.log(dateFieldData);
-            console.log(start,end);
             if(dateField){
+                console.log(dateFieldData);
+                console.log(start,end,project);
                 documents = await this.db.collection('forms')
                 .where('project', '==',project)
-                .where(dateFieldData.id,'>',start)
-                .where(dateFieldData.id,'<',end).get()
+                .where(String(dateFieldData.id),'>',start)
+                .where(String(dateFieldData.id),'<',end).get()
                 ;
             }
             else{
                 documents = await this.db.collection('forms')
                 .where('project', '==',project).get()
             }
-    
+            console.log('retrieved forms========');
             const data = [];
             documents.forEach(doc =>{
                 let docData = doc.data();
@@ -292,6 +296,7 @@ class DbInterface extends BaseInterface{
                 }
                 data.push(docData);
             });
+            console.log(data);
             let populatedDocs = await this.populateFields(data);
             return populatedDocs;
         }

@@ -36,7 +36,7 @@ class FormData extends BaseData{
         this.learnedAbout = null;
         this.project = null;
         this.id = null;
-        this.idIdentifier = 'referral';
+        this.idIdentifier = 'referral #';
         this.projectIdentifier = 'project';
         this.customFields = {};
 
