@@ -54,4 +54,22 @@ router.get('/',checkAuth,async (req,res,next) => {
 
 });
 
+router.get('/fields',checkAuth,async (req,res,next) => {
+    try{
+        let {project} = req;
+        const data = await formDatabase.getProjectFields(project);
+
+        return res.json({
+            message:'Project Fields',
+            documents:data
+        });
+    }
+    catch(e){
+        console.log('error getting protected data',e);
+        res.err = e;
+        next();
+    }
+
+});
+
 module.exports = {router};

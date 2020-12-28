@@ -184,6 +184,22 @@ class DbInterface extends BaseInterface{
         }
     }
 
+    async getProjectFields(project){
+        try{
+            const documents = await this.db.collection('fields').where('project','==',project).get();
+            let fields = [];
+            documents.forEach(doc => {
+                let field = doc.data();
+                fields.push(field);
+            })
+            return fields;
+        }
+        catch(e){
+            console.log('error getting field: ',e);
+            throw e;
+        }
+    }
+
     async populateFields(forms){
         try{
             let fieldReqs = [];
