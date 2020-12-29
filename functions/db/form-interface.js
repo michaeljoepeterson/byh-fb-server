@@ -11,7 +11,8 @@ let timeOutDefault = (60) * 10;
 let checkPeriod = (60) * 15;
 //cache to avoid uneccssary db checks/writes
 const fieldDataCache = new NodeCache({ stdTTL: timeOutDefault, checkperiod: checkPeriod });
-
+//date.toLocaleString("en-US", {timeZone: "America/Denver", timeZoneName: "long"})
+//need to parse that client side only way to handle timezone since google scripts are dumb
 class DbInterface extends BaseInterface{
     constructor(){
         super();
