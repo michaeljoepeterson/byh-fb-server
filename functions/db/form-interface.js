@@ -267,17 +267,24 @@ class DbInterface extends BaseInterface{
             let start = !options.start ? new Date() : options.start;
             let {dateField} = options; 
             let dateFieldData = dateField ? await this.getField(dateField) : null;
-            start.setDate(start.getDate() - offsetDays);
+            if(!options.start && !options.end){
+                start.setDate(start.getDate() - offsetDays);
+            }
             //let dataNames = FormData.getDataNames();
+            //filter forms by date range from firestore then filter by search terms using js
             let documents = [];
             if(dateField){
                 console.log(dateFieldData);
                 console.log(start,end,project);
-                documents = await this.db.collection('forms')
+                //handle search to date to the end of db
+                let query = options.end && !options.start ? this.db.collection('forms')
                 .where('project', '==',project)
-                .where(String(dateFieldData.id),'>',start)
-                .where(String(dateFieldData.id),'<',end).get()
-                ;
+                .where(String(dateFieldData.id),'<',end) : this.db.collection('forms')
+                .where('project', '==',project)
+                .where(String(dateFieldData.id),'<',end)
+                .where(String(dateFieldData.id),'>',start);
+
+                documents = await query.get();
             }
             else{
                 documents = await this.db.collection('forms')
