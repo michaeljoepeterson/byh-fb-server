@@ -33,11 +33,12 @@ router.post('/',async (req,res,next) => {
 router.get('/',checkAuth,async (req,res,next) => {
     try{
         let {project} = req;
-        let {dateField,fromDate,toDate} = req.query;
+        let {dateField,fromDate,toDate,searchText} = req.query;
         let options = {
             start:fromDate ? new Date(fromDate) : null,
             end:toDate ? new Date(toDate) : null,
-            dateField
+            dateField,
+            searchText
         };
         const data = await formDatabase.getForms(project,options);
 

@@ -250,12 +250,41 @@ class DbInterface extends BaseInterface{
                 };
                 populatedDocs.push(formData);
             });
-            console.log('pop docs: ',populatedDocs);
+            //console.log('pop docs: ',populatedDocs);
             return populatedDocs;
         }
         catch(e){
             console.log('error populating fields: ',e);
             throw e;
+        }
+    }
+
+    filterForms(searchText,forms){
+        try{
+            console.log('filter for search text: ',searchText);
+            let newForms = forms.filter(form => {
+                let hasFieldVal = form.fields.find(field => {
+                    if(field.value){
+                        if(field.type === 'string'){
+                            console.log(field);
+                            return field.value.trim().toLowerCase().includes(searchText.trim().toLowerCase());
+                        }
+                        else if(field.type === 'number'){
+                            return field.value == searchText;
+                        }
+                    }
+
+                    return false;
+                });
+
+                return hasFieldVal ? true : false;
+            });
+    
+            return newForms;
+        }
+        catch(e){
+            console.warn('Error filtering forms: ',e);
+            return forms;
         }
     }
 
@@ -265,7 +294,7 @@ class DbInterface extends BaseInterface{
             let offsetDays = options.offset ? offset : 30;
             let end = !options.end ? new Date() : options.end;
             let start = !options.start ? new Date() : options.start;
-            let {dateField} = options; 
+            let {dateField,searchText} = options; 
             let dateFieldData = dateField ? await this.getField(dateField) : null;
             if(!options.start && !options.end){
                 start.setDate(start.getDate() - offsetDays);
@@ -294,18 +323,16 @@ class DbInterface extends BaseInterface{
             const data = [];
             documents.forEach(doc =>{
                 let docData = doc.data();
-                /*
-                if(docData.referralDate){
-                    docData.referralDate = docData.referralDate.toDate();
-                }
-                */
                 if(dateFieldData && docData[dateFieldData.id]){
                     docData[dateFieldData.id] = docData[dateFieldData.id].toDate();
                 }
                 data.push(docData);
             });
-            console.log(data);
+            //console.log(data);
             let populatedDocs = await this.populateFields(data);
+            if(searchText){
+                populatedDocs = this.filterForms(searchText,populatedDocs);
+            }
             return populatedDocs;
         }
         catch(e){
