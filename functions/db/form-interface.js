@@ -33,6 +33,9 @@ class DbInterface extends BaseInterface{
             if(id && saveData.id){
                 await this.db.collection('forms').doc(id).set(saveData);
             }
+            else{
+                await this.db.collection('forms').add(saveData);
+            }
             
             return true;
         }
@@ -76,69 +79,15 @@ class DbInterface extends BaseInterface{
                     let respForm = new FormResponse(form);
                     let type = respField.getFieldType(respForm);
                     respField.fieldType = type;
-
-                    let existingField = respField.id ? fieldDataCache.get(respField.id): null;
+                    respField.id = respField.id + `-${project}`;
+                    let existingField = respField.id ? fieldDataCache.get(respField.id + `-${project}`): null;
                     //one way association only one of the fields will have the association
                     //which should be enough to setup a relationship
                     if(type === this.dateIdentifier){
                         respForm.value = new Date(respForm.value);
                     }
-                    /*
-                    if(type === this.timeIdentifier || type === this.dateIdentifier){
-                        let isDate = type === this.dateIdentifier;
-                        let dateIdSplit = !isDate ? respField.fieldTitle.toLowerCase().split(this.timeIdentifier) : respField.fieldTitle.toLowerCase().split(this.dateIdentifier);
-                        let dateId = dateIdSplit.find(str => str !== '');
-                        if(!dateTimeMap[dateId]){
-                            let dateObj = {
-                                date:null,
-                                time:null,
-                                dateIndex:null,
-                                timeIndex:null
-                            };
-                            dateObj.date = type === this.dateIdentifier ? respField.id : null;
-                            dateObj.time = type === this.timeIdentifier ? respField.id : null;
-
-                            dateObj.dateIndex = type === this.dateIdentifier ? index : null;
-                            dateObj.timeIndex = type === this.timeIdentifier ? index : null;
-                            
-                            dateTimeMap[dateId] = dateObj;
-                        }
-                        else{
-                            if(isDate){
-                                let timeIndex = dateTimeMap[dateId].timeIndex;
-                                respField.associatedField = dateTimeMap[dateId].time;
-                                if(timeIndex){
-                                    try{
-                                        let timeSplit = finalForms[timeIndex].split(":");
-                                        respForm.value.setHours(timeSplit[0],timeSplit[1]);
-                                    }
-                                    catch(e){
-                                        console.log('error saving time to date',e);
-                                    }
-                                }
-                            }
-                            else{
-                                let dateIndex = dateTimeMap[dateId].dateIndex;
-                                respField.associatedField = dateTimeMap[dateId].date;
-                                if(dateIndex){
-                                    try{
-                                        let timeSplit = respForm.value.split(':');
-                                        finalForms[dateIndex].value.setHours(timeSplit[0],timeSplit[1]);
-                                    }
-                                    catch(e){
-                                        console.log('error saving date to time',e);
-                                    }
-                                }
-                            }
-                        }
- 
-                    }
-                    */
-                    //console.log('date: ',dateTimeMap);
-                    //console.log('final resp form: ',respForm);
                     //create/update field if it does not exist
                     if(!existingField && respField.id){
-                        //await this.saveField(respField); 
                         fieldReqs.push(this.saveField(respField,project));
                         fieldDataCache.set(respField.id,respField);
                     }
@@ -160,10 +109,12 @@ class DbInterface extends BaseInterface{
         }
     }
 
-    async getField(title){
+    async getField(title,project){
         try{
             const documents = await this.db.collection('fields')
-            .where('fieldTitle','==',title).get();
+            .where('fieldTitle','==',title)
+            .where('project','==',project)
+            .get();
             let field = null;
             documents.forEach(doc => {
                 field = doc.data();
@@ -295,14 +246,14 @@ class DbInterface extends BaseInterface{
             let end = !options.end ? new Date() : options.end;
             let start = !options.start ? new Date() : options.start;
             let {dateField,searchText} = options; 
-            let dateFieldData = dateField ? await this.getField(dateField) : null;
+            let dateFieldData = dateField ? await this.getField(dateField,project) : null;
             if(!options.start && !options.end){
                 start.setDate(start.getDate() - offsetDays);
             }
             //let dataNames = FormData.getDataNames();
             //filter forms by date range from firestore then filter by search terms using js
             let documents = [];
-            if(dateField){
+            if(dateField && dateFieldData){
                 console.log(dateFieldData);
                 console.log(start,end,project);
                 //handle search to date to the end of db
