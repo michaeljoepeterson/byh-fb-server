@@ -20,13 +20,15 @@ class DbInterface extends BaseInterface{
         this.timeIdentifier = 'time';
         this.dateIdentifier = 'date';
         this.projectIdentifier = 'project';
+        this.currentProject = '';
     }
 
     async saveForm(form){
         try{
             let modifiedForms = await this.createFields(form);
             
-            let formData = new FormData(modifiedForms);
+            let formData = new FormData(modifiedForms,this.currentProject);
+            console.log('==========modified forms instance: ',modifiedForms);
             let saveData = formData.serialize();
             console.log('==========form instance: ',saveData);
             let id = String(saveData.id);
@@ -66,9 +68,10 @@ class DbInterface extends BaseInterface{
 
     async createFields(formData){
         //for associating date time fields
-        let dateTimeMap = {};
+        //let dateTimeMap = {};
         let projectField = formData.find(data => data.title.toLowerCase() === 'project');
         let project = projectField.value;
+        this.currentProject = project;
         console.log('==========form data: ',formData);
         try{
             let fieldReqs = [];

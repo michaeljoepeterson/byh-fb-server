@@ -18,7 +18,7 @@ class FormData extends BaseData{
         type -> saved on form result just in case type changes at some point
     }
     */
-    constructor(data){
+    constructor(data,project){
         super(data);
         this.referralNum = null;
         this.referralType = null;
@@ -34,7 +34,7 @@ class FormData extends BaseData{
         this.firstName = null;
         this.age = null;
         this.learnedAbout = null;
-        this.project = null;
+        this.project = project ? project : null;
         this.id = null;
         this.idIdentifier = 'referral #';
         this.projectIdentifier = 'project';
@@ -78,7 +78,7 @@ class FormData extends BaseData{
                 this.project = formResp.value;
             }
             else{
-                this.customFields[formResp.id] = formResp.value;
+                this.customFields[formResp.id + `-${this.project}`] = formResp.value;
             }
             if(formResp.title.toLowerCase().includes(this.idIdentifier)){
                 this.id = formResp.value;
