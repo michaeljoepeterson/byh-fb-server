@@ -280,9 +280,10 @@ class DbInterface extends BaseInterface{
                 if(dateFieldData && docData[dateFieldData.id]){
                     docData[dateFieldData.id] = docData[dateFieldData.id].toDate();
                 }
+                docData.id = doc.id;
                 data.push(docData);
             });
-            //console.log(data);
+            console.log(data);
             let populatedDocs = await this.populateFields(data);
             if(searchText){
                 populatedDocs = this.filterForms(searchText,populatedDocs);
